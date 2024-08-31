@@ -81,9 +81,9 @@ window.addEventListener('load', loadAllComments);
 
 function toggleChatWindow() {
     const chatContainer = document.getElementById('chat-container');
-    chatContainer.classList.toggle('chat-minimized');
-    const chatHeader = document.getElementById('chat-header');
-    chatHeader.textContent = chatContainer.classList.contains('chat-minimized') ? 'Open Chat' : 'Chat with AI';
+    chatContainer.classList.toggle('chat-hidden');
+    const chatToggleBtn = document.getElementById('chat-toggle-btn');
+    chatToggleBtn.textContent = chatContainer.classList.contains('chat-hidden') ? 'Chat' : 'Close';
 }
 
-document.getElementById('chat-header').addEventListener('click', toggleChatWindow);
+document.getElementById('chat-toggle-btn').addEventListener('click', toggleChatWindow);
