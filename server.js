@@ -33,6 +33,7 @@ app.post('/api/chat', async (req, res) => {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': AI_API_KEY,
+                'anthropic-version': '2023-06-01' // Add this line
             },
         });
 
@@ -48,6 +49,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server listening at http://0.0.0.0:${port}`);
 });
