@@ -1,6 +1,13 @@
 let currentPage = 1;
 const totalPages = 60;
 
+function convertUrlsToLinks(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return `<a href="${url}" target="_blank">${url}</a>`;
+    });
+}
+
 async function loadComment(page) {
     const container = document.getElementById('comment-container');
     container.innerHTML = ''; // Clear previous content
@@ -26,7 +33,8 @@ async function loadComment(page) {
         article.appendChild(img);
         
         const content = document.createElement('div');
-        content.innerHTML = text.replace(/\n/g, '<br>');
+        const processedText = convertUrlsToLinks(text);
+        content.innerHTML = processedText.replace(/\n/g, '<br>');
         article.appendChild(content);
         
         container.appendChild(article);
