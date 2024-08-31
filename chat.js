@@ -1,7 +1,7 @@
 let allComments = '';
 
 async function loadAllComments() {
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 1; i <= 60; i++) {
         try {
             const response = await fetch(`static/comment${i}.txt`);
             if (response.ok) {
@@ -41,22 +41,9 @@ async function sendMessage(message) {
 function displayMessage(sender, message) {
     const chatMessages = document.getElementById('chat-messages');
     const messageElement = document.createElement('p');
-    messageElement.innerHTML = `<span>${sender}:</span> `;
+    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // Add typing effect
-    if (sender === 'AI') {
-        const letters = message.split('');
-        letters.forEach((letter, index) => {
-            setTimeout(() => {
-                messageElement.innerHTML += letter;
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, index * 20);
-        });
-    } else {
-        messageElement.innerHTML += message;
-    }
 }
 
 function handleSendMessage() {
@@ -72,18 +59,9 @@ document.getElementById('send-btn').addEventListener('click', handleSendMessage)
 
 document.getElementById('user-input').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
         handleSendMessage();
     }
 });
 
 window.addEventListener('load', loadAllComments);
-
-function toggleChatWindow() {
-    const chatContainer = document.getElementById('chat-container');
-    chatContainer.classList.toggle('chat-hidden');
-    const chatToggleBtn = document.getElementById('chat-toggle-btn');
-    chatToggleBtn.textContent = chatContainer.classList.contains('chat-hidden') ? 'Chat' : 'Close';
-}
-
-document.getElementById('chat-toggle-btn').addEventListener('click', toggleChatWindow);
