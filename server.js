@@ -25,15 +25,15 @@ app.post('/api/chat', async (req, res) => {
         const response = await axios.post('https://api.anthropic.com/v1/messages', {
             model: "claude-3-opus-20240229",
             max_tokens: 1000,
+            system: "You are an AI assistant answering questions about the provided context.",
             messages: [
-                { role: "system", content: "You are an AI assistant answering questions about the provided context." },
                 { role: "user", content: `Context: ${context}\n\nQuestion: ${message}` }
             ]
         }, {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': AI_API_KEY,
-                'anthropic-version': '2023-06-01' // Add this line
+                'anthropic-version': '2023-06-01'
             },
         });
 
