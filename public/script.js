@@ -57,14 +57,6 @@ async function loadComment(page) {
         container.appendChild(article);
         
         // Add this at the end of the function
-        const chatButtonContainer = document.createElement('div');
-        chatButtonContainer.className = 'chat-button-container';
-        const chatButton = document.createElement('button');
-        chatButton.id = 'chat-btn';
-        chatButton.textContent = 'Chat';
-        chatButton.onclick = () => location.href = 'chat.html';
-        chatButtonContainer.appendChild(chatButton);
-        container.appendChild(chatButtonContainer);
 
         // Save the current page to local storage
         localStorage.setItem('lastReadComment', page);
