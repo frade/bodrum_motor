@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const path = require('path');
+const fs = require('fs').promises;
 const app = express();
 const port = 3000;
 
@@ -10,11 +11,30 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const AI_API_KEY = process.env.AI_API_KEY;
+const CHAT_HISTORY_FILE = path.join(__dirname, 'chat_history.json');
 
 if (!AI_API_KEY) {
     console.error('AI_API_KEY is not set in environment variables');
     process.exit(1);
 }
+
+async function loadChatHistory() {
+    try {
+        const data = await fs.readFile(CHAT_HISTORY_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        return [];
+    }
+}
+
+async function saveChatHistory(history) {
+    await fs.writeFile(CHAT_HISTORY_FILE, JSON.stringify(history, null, 2));
+}
+
+app.get('/api/chat-history', async (req, res) => {
+    const history = await loadChatHistory();
+    res.json(history);
+});
 
 app.post('/api/chat', async (req, res) => {
     try {
@@ -39,7 +59,18 @@ app.post('/api/chat', async (req, res) => {
         });
 
         console.log('Received response from Anthropic API');
-        res.json({ response: response.data.content[0].text });
+        const aiResponse = response.data.content[0].text;
+        
+        // Save to chat history
+        const history = await loadChatHistory();
+        history.unshift({
+            timestamp: new Date().toISOString(),
+            user: message,
+            ai: aiResponse
+        });
+        await saveChatHistory(history);
+
+        res.json({ response: aiResponse });
     } catch (error) {
         console.error('Error details:', error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'An error occurred while processing your request.' });

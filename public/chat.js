@@ -1,5 +1,4 @@
 let allComments = '';
-let chatHistory = [];
 
 async function loadAllComments() {
     for (let i = 1; i <= 60; i++) {
@@ -15,22 +14,26 @@ async function loadAllComments() {
     }
 }
 
-function loadChatHistory() {
-    const storedHistory = localStorage.getItem('chatHistory');
-    if (storedHistory) {
-        chatHistory = JSON.parse(storedHistory);
-        chatHistory.forEach(message => displayMessage(message.sender, message.content));
+async function loadChatHistory() {
+    try {
+        const response = await fetch('/api/chat-history');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const history = await response.json();
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = ''; // Clear existing messages
+        history.forEach(entry => {
+            displayMessage('You', entry.user);
+            displayMessage('AI', entry.ai);
+        });
+    } catch (error) {
+        console.error('Failed to load chat history:', error);
     }
-}
-
-function saveChatHistory() {
-    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
 }
 
 async function sendMessage(message) {
     displayMessage('You', message);
-    chatHistory.push({ sender: 'You', content: message });
-    saveChatHistory();
     
     try {
         const response = await fetch('/api/chat', {
@@ -47,14 +50,12 @@ async function sendMessage(message) {
 
         const data = await response.json();
         displayMessage('AI', data.response);
-        chatHistory.push({ sender: 'AI', content: data.response });
-        saveChatHistory();
+        
+        // Reload chat history to show the new message in context
+        await loadChatHistory();
     } catch (error) {
         console.error('Error:', error);
-        const errorMessage = 'Sorry, I encountered an error while processing your request.';
-        displayMessage('AI', errorMessage);
-        chatHistory.push({ sender: 'AI', content: errorMessage });
-        saveChatHistory();
+        displayMessage('AI', 'Sorry, I encountered an error while processing your request.');
     }
 }
 
@@ -83,15 +84,6 @@ document.getElementById('user-input').addEventListener('keypress', function(even
         handleSendMessage();
     }
 });
-
-function clearChat() {
-    chatHistory = [];
-    localStorage.removeItem('chatHistory');
-    const chatMessages = document.getElementById('chat-messages');
-    chatMessages.innerHTML = '';
-}
-
-document.getElementById('clear-chat-btn').addEventListener('click', clearChat);
 
 window.addEventListener('load', () => {
     loadAllComments();
