@@ -23,7 +23,7 @@ async function loadComment(page) {
         article.className = 'comment';
         
         const title = document.createElement('h2');
-        title.textContent = `Комментарий ${page}`;
+        title.textContent = `Серия комментариев "Мотор развития" ${page}`; 
         article.appendChild(title);
         
         // Check if an image exists for this comment
