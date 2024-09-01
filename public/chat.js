@@ -1,7 +1,7 @@
 let allComments = '';
 
 async function loadAllComments() {
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 1; i <= 60; i++) {
         try {
             const response = await fetch(`static/comment${i}.txt`);
             if (response.ok) {
@@ -41,30 +41,26 @@ async function sendMessage(message) {
 function displayMessage(sender, message) {
     const chatMessages = document.getElementById('chat-messages');
     const messageElement = document.createElement('p');
-    messageElement.innerHTML = `<span style="color: #00ff00;">${sender}:</span> `;
+    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // Add typing effect
-    if (sender === 'AI') {
-        const letters = message.split('');
-        letters.forEach((letter, index) => {
-            setTimeout(() => {
-                messageElement.innerHTML += letter;
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, index * 20);
-        });
-    } else {
-        messageElement.innerHTML += message;
-    }
 }
 
-document.getElementById('send-btn').addEventListener('click', () => {
+function handleSendMessage() {
     const userInput = document.getElementById('user-input');
     const message = userInput.value.trim();
     if (message) {
         sendMessage(message);
         userInput.value = '';
+    }
+}
+
+document.getElementById('send-btn').addEventListener('click', handleSendMessage);
+
+document.getElementById('user-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        handleSendMessage();
     }
 });
 
