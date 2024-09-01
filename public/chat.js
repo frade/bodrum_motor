@@ -64,16 +64,30 @@ function displayMessage(entry) {
         <p><strong>You:</strong> ${entry.user}</p>
         <p><strong>AI:</strong> ${entry.ai}</p>
         <div class="voting">
-            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up ${userVotes[entry.id] === 'up' ? 'active' : ''}">👍 ${entry.upvotes}</button>
-            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down ${userVotes[entry.id] === 'down' ? 'active' : ''}">👎 ${entry.downvotes}</button>
+            <button class="vote-btn up" data-id="${entry.id}">👍 ${entry.upvotes}</button>
+            <button class="vote-btn down" data-id="${entry.id}">👎 ${entry.downvotes}</button>
         </div>
     `;
+    
+    const upButton = messageElement.querySelector('.vote-btn.up');
+    const downButton = messageElement.querySelector('.vote-btn.down');
+    
+    upButton.addEventListener('click', () => vote(entry.id, 'up'));
+    downButton.addEventListener('click', () => vote(entry.id, 'down'));
+    
+    if (userVotes[entry.id] === 'up') {
+        upButton.classList.add('active');
+    } else if (userVotes[entry.id] === 'down') {
+        downButton.classList.add('active');
+    }
+    
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 async function vote(id, type) {
     try {
+        console.log(`Voting ${type} for message ${id}`); // Debug log
         const response = await fetch('/api/vote', {
             method: 'POST',
             headers: {
@@ -87,6 +101,7 @@ async function vote(id, type) {
         }
 
         const result = await response.json();
+        console.log('Vote result:', result); // Debug log
 
         if (userVotes[id] === type) {
             delete userVotes[id];
@@ -96,7 +111,7 @@ async function vote(id, type) {
         localStorage.setItem('userVotes', JSON.stringify(userVotes));
 
         // Update the vote counts in the UI
-        const messageElement = document.querySelector(`.message:has(button[onclick="vote(${id}, 'up')"])`);
+        const messageElement = document.querySelector(`.message:has(button[data-id="${id}"])`);
         if (messageElement) {
             const upButton = messageElement.querySelector('.vote-btn.up');
             const downButton = messageElement.querySelector('.vote-btn.down');
