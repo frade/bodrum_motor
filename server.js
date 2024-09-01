@@ -44,7 +44,7 @@ app.post('/api/chat', async (req, res) => {
         console.log('API Key:', AI_API_KEY.substring(0, 5) + '...' + AI_API_KEY.slice(-5));
         
         const response = await axios.post('https://api.anthropic.com/v1/messages', {
-            model: "claude-3-opus-20240229",
+            model: "claude-3-5-sonnet-20240620",
             max_tokens: 1000,
             system: "You are an AI assistant answering questions about the provided context.",
             messages: [
