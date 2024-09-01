@@ -95,13 +95,17 @@ async function vote(id, type) {
         }
         localStorage.setItem('userVotes', JSON.stringify(userVotes));
 
-        // Update the vote count in the UI
-        const voteButton = document.querySelector(`.message:has(button[onclick="vote(${id}, '${type}')"])`);
-        if (voteButton) {
-            const countElement = voteButton.querySelector(`.vote-btn.${type}`);
-            if (countElement) {
-                countElement.textContent = `${type === 'up' ? '👍' : '👎'} ${result[type + 'votes']}`;
-            }
+        // Update the vote counts in the UI
+        const messageElement = document.querySelector(`.message:has(button[onclick="vote(${id}, 'up')"])`);
+        if (messageElement) {
+            const upButton = messageElement.querySelector('.vote-btn.up');
+            const downButton = messageElement.querySelector('.vote-btn.down');
+            
+            upButton.textContent = `👍 ${result.upvotes}`;
+            downButton.textContent = `👎 ${result.downvotes}`;
+            
+            upButton.classList.toggle('active', userVotes[id] === 'up');
+            downButton.classList.toggle('active', userVotes[id] === 'down');
         }
 
     } catch (error) {

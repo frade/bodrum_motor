@@ -88,18 +88,20 @@ app.post('/api/vote', async (req, res) => {
         const entry = history.find(e => e.id === parseInt(id));
         
         if (entry) {
-            if (previousVote && previousVote !== type) {
-                if (previousVote === 'up') entry.upvotes = Math.max(0, entry.upvotes - 1);
-                if (previousVote === 'down') entry.downvotes = Math.max(0, entry.downvotes - 1);
-            }
-            
-            if (previousVote !== type) {
-                if (type === 'up') entry.upvotes++;
-                if (type === 'down') entry.downvotes++;
-            } else {
-                // If clicking the same button, remove the vote
+            if (previousVote === type) {
+                // User is un-voting
                 if (type === 'up') entry.upvotes = Math.max(0, entry.upvotes - 1);
                 if (type === 'down') entry.downvotes = Math.max(0, entry.downvotes - 1);
+            } else {
+                // User is changing vote or voting for the first time
+                if (previousVote) {
+                    // Remove previous vote
+                    if (previousVote === 'up') entry.upvotes = Math.max(0, entry.upvotes - 1);
+                    if (previousVote === 'down') entry.downvotes = Math.max(0, entry.downvotes - 1);
+                }
+                // Add new vote
+                if (type === 'up') entry.upvotes++;
+                if (type === 'down') entry.downvotes++;
             }
             
             await saveChatHistory(history);
