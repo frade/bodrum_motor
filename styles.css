@@ -187,3 +187,23 @@ button:disabled {
 .chat-minimized #chat-input-container {
     display: none;
 }
+
+.chat-button-container {
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+#chat-btn {
+    background-color: #35424a;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#chat-btn:hover {
+    background-color: #2a363d;
+}

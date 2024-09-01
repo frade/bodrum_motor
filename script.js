@@ -38,6 +38,16 @@ async function loadComment(page) {
         article.appendChild(content);
         
         container.appendChild(article);
+        
+        // Add this at the end of the function
+        const chatButtonContainer = document.createElement('div');
+        chatButtonContainer.className = 'chat-button-container';
+        const chatButton = document.createElement('button');
+        chatButton.id = 'chat-btn';
+        chatButton.textContent = 'Chat';
+        chatButton.onclick = () => location.href = 'chat.html';
+        chatButtonContainer.appendChild(chatButton);
+        container.appendChild(chatButtonContainer);
     } catch (error) {
         console.error(`Failed to load comment${page}.txt:`, error);
         container.innerHTML = `
