@@ -64,8 +64,8 @@ function displayMessage(entry) {
         <p><strong>You:</strong> ${entry.user}</p>
         <p><strong>AI:</strong> ${entry.ai}</p>
         <div class="voting">
-            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up ${userVotes[entry.id] === 'up' ? 'active' : ''}">👍 ${entry.upvotes}</button>
-            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down ${userVotes[entry.id] === 'down' ? 'active' : ''}">👎 ${entry.downvotes}</button>
+            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up ${userVotes[entry.id] === 'up' ? 'active' : ''}">👍 ${entry.upvotes || 0}</button>
+            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down ${userVotes[entry.id] === 'down' ? 'active' : ''}">👎 ${entry.downvotes || 0}</button>
         </div>
     `;
     chatMessages.appendChild(messageElement);
