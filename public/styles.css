@@ -134,3 +134,17 @@ button:disabled {
         margin-bottom: 0.5rem;
     }
 }
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+#clear-chat-btn {
+    background-color: #e74c3c;
+}
+
+#clear-chat-btn:hover {
+    background-color: #c0392b;
+}

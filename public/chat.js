@@ -1,4 +1,5 @@
 let allComments = '';
+let chatHistory = [];
 
 async function loadAllComments() {
     for (let i = 1; i <= 60; i++) {
@@ -14,8 +15,22 @@ async function loadAllComments() {
     }
 }
 
+function loadChatHistory() {
+    const storedHistory = localStorage.getItem('chatHistory');
+    if (storedHistory) {
+        chatHistory = JSON.parse(storedHistory);
+        chatHistory.forEach(message => displayMessage(message.sender, message.content));
+    }
+}
+
+function saveChatHistory() {
+    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
 async function sendMessage(message) {
     displayMessage('You', message);
+    chatHistory.push({ sender: 'You', content: message });
+    saveChatHistory();
     
     try {
         const response = await fetch('/api/chat', {
@@ -32,9 +47,14 @@ async function sendMessage(message) {
 
         const data = await response.json();
         displayMessage('AI', data.response);
+        chatHistory.push({ sender: 'AI', content: data.response });
+        saveChatHistory();
     } catch (error) {
         console.error('Error:', error);
-        displayMessage('AI', 'Sorry, I encountered an error while processing your request.');
+        const errorMessage = 'Sorry, I encountered an error while processing your request.';
+        displayMessage('AI', errorMessage);
+        chatHistory.push({ sender: 'AI', content: errorMessage });
+        saveChatHistory();
     }
 }
 
@@ -64,4 +84,16 @@ document.getElementById('user-input').addEventListener('keypress', function(even
     }
 });
 
-window.addEventListener('load', loadAllComments);
+function clearChat() {
+    chatHistory = [];
+    localStorage.removeItem('chatHistory');
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.innerHTML = '';
+}
+
+document.getElementById('clear-chat-btn').addEventListener('click', clearChat);
+
+window.addEventListener('load', () => {
+    loadAllComments();
+    loadChatHistory();
+});
