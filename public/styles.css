@@ -189,3 +189,8 @@ button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.vote-btn.active {
+    opacity: 1;
+    font-weight: bold;
+}

@@ -83,16 +83,21 @@ app.post('/api/chat', async (req, res) => {
 
 app.post('/api/vote', async (req, res) => {
     try {
-        const { id, type } = req.body;
+        const { id, type, previousVote } = req.body;
         const history = await loadChatHistory();
         const entry = history.find(e => e.id === id);
         
         if (entry) {
-            if (type === 'up') {
-                entry.upvotes++;
-            } else if (type === 'down') {
-                entry.downvotes++;
+            if (previousVote) {
+                if (previousVote === 'up') entry.upvotes--;
+                if (previousVote === 'down') entry.downvotes--;
             }
+            
+            if (type !== previousVote) {
+                if (type === 'up') entry.upvotes++;
+                if (type === 'down') entry.downvotes++;
+            }
+            
             await saveChatHistory(history);
             res.json({ success: true });
         } else {

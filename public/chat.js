@@ -33,8 +33,6 @@ async function loadChatHistory() {
 }
 
 async function sendMessage(message) {
-    displayMessage('You', message);
-    
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
@@ -49,13 +47,12 @@ async function sendMessage(message) {
         }
 
         const data = await response.json();
-        displayMessage('AI', data.response);
         
         // Reload chat history to show the new message in context
         await loadChatHistory();
     } catch (error) {
         console.error('Error:', error);
-        displayMessage('AI', 'Sorry, I encountered an error while processing your request.');
+        alert('Sorry, I encountered an error while processing your request.');
     }
 }
 
@@ -67,8 +64,8 @@ function displayMessage(entry) {
         <p><strong>You:</strong> ${entry.user}</p>
         <p><strong>AI:</strong> ${entry.ai}</p>
         <div class="voting">
-            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up" ${userVotes[entry.id] ? 'disabled' : ''}>👍 ${entry.upvotes}</button>
-            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down" ${userVotes[entry.id] ? 'disabled' : ''}>👎 ${entry.downvotes}</button>
+            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up ${userVotes[entry.id] === 'up' ? 'active' : ''}">👍 ${entry.upvotes}</button>
+            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down ${userVotes[entry.id] === 'down' ? 'active' : ''}">👎 ${entry.downvotes}</button>
         </div>
     `;
     chatMessages.appendChild(messageElement);
@@ -76,25 +73,24 @@ function displayMessage(entry) {
 }
 
 async function vote(id, type) {
-    if (userVotes[id]) {
-        console.log('You have already voted on this entry.');
-        return;
-    }
-
     try {
         const response = await fetch('/api/vote', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id, type }),
+            body: JSON.stringify({ id, type, previousVote: userVotes[id] }),
         });
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        userVotes[id] = type;
+        if (userVotes[id] === type) {
+            delete userVotes[id];
+        } else {
+            userVotes[id] = type;
+        }
         localStorage.setItem('userVotes', JSON.stringify(userVotes));
 
         // Reload chat history to update vote counts
