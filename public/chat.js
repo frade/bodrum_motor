@@ -1,4 +1,5 @@
 let allComments = '';
+let userVotes = JSON.parse(localStorage.getItem('userVotes') || '{}');
 
 async function loadAllComments() {
     for (let i = 1; i <= 60; i++) {
@@ -24,8 +25,7 @@ async function loadChatHistory() {
         const chatMessages = document.getElementById('chat-messages');
         chatMessages.innerHTML = ''; // Clear existing messages
         history.forEach(entry => {
-            displayMessage('You', entry.user, entry.id, entry.upvotes, entry.downvotes);
-            displayMessage('AI', entry.ai, entry.id, entry.upvotes, entry.downvotes);
+            displayMessage(entry);
         });
     } catch (error) {
         console.error('Failed to load chat history:', error);
@@ -59,15 +59,16 @@ async function sendMessage(message) {
     }
 }
 
-function displayMessage(sender, message, id, upvotes, downvotes) {
+function displayMessage(entry) {
     const chatMessages = document.getElementById('chat-messages');
     const messageElement = document.createElement('div');
     messageElement.className = 'message';
     messageElement.innerHTML = `
-        <p><strong>${sender}:</strong> ${message}</p>
+        <p><strong>You:</strong> ${entry.user}</p>
+        <p><strong>AI:</strong> ${entry.ai}</p>
         <div class="voting">
-            <button onclick="vote(${id}, 'up')" class="vote-btn up">👍 ${upvotes}</button>
-            <button onclick="vote(${id}, 'down')" class="vote-btn down">👎 ${downvotes}</button>
+            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up" ${userVotes[entry.id] ? 'disabled' : ''}>👍 ${entry.upvotes}</button>
+            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down" ${userVotes[entry.id] ? 'disabled' : ''}>👎 ${entry.downvotes}</button>
         </div>
     `;
     chatMessages.appendChild(messageElement);
@@ -75,6 +76,11 @@ function displayMessage(sender, message, id, upvotes, downvotes) {
 }
 
 async function vote(id, type) {
+    if (userVotes[id]) {
+        console.log('You have already voted on this entry.');
+        return;
+    }
+
     try {
         const response = await fetch('/api/vote', {
             method: 'POST',
@@ -87,6 +93,9 @@ async function vote(id, type) {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        userVotes[id] = type;
+        localStorage.setItem('userVotes', JSON.stringify(userVotes));
 
         // Reload chat history to update vote counts
         await loadChatHistory();

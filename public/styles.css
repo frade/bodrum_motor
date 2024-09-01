@@ -184,3 +184,8 @@ button:disabled {
 .vote-btn.down {
     color: #F44336;
 }
+
+.vote-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
