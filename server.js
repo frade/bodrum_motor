@@ -84,10 +84,14 @@ app.post('/api/chat', async (req, res) => {
 app.post('/api/vote', async (req, res) => {
     try {
         const { id, type, previousVote } = req.body;
+        console.log(`Received vote request: id=${id}, type=${type}, previousVote=${previousVote}`); // Debug log
+
         const history = await loadChatHistory();
         const entry = history.find(e => e.id === parseInt(id));
         
         if (entry) {
+            console.log(`Found entry: ${JSON.stringify(entry)}`); // Debug log
+
             if (previousVote === type) {
                 // User is un-voting
                 if (type === 'up') entry.upvotes = Math.max(0, entry.upvotes - 1);
@@ -105,12 +109,15 @@ app.post('/api/vote', async (req, res) => {
             }
             
             await saveChatHistory(history);
+            console.log(`Updated entry: ${JSON.stringify(entry)}`); // Debug log
+
             res.json({ 
                 success: true, 
                 upvotes: entry.upvotes, 
                 downvotes: entry.downvotes 
             });
         } else {
+            console.log(`Entry not found for id: ${id}`); // Debug log
             res.status(404).json({ error: 'Entry not found' });
         }
     } catch (error) {
@@ -119,6 +126,7 @@ app.post('/api/vote', async (req, res) => {
     }
 });
 
+// Place this AFTER all other specific routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
