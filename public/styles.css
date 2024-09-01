@@ -151,3 +151,36 @@ button:disabled {
     background-color: #c0392b;
 }
 */
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.voting {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.vote-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    font-size: 1rem;
+}
+
+.vote-btn:hover {
+    opacity: 0.7;
+}
+
+.vote-btn.up {
+    color: #4CAF50;
+}
+
+.vote-btn.down {
+    color: #F44336;
+}

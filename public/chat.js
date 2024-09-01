@@ -24,8 +24,8 @@ async function loadChatHistory() {
         const chatMessages = document.getElementById('chat-messages');
         chatMessages.innerHTML = ''; // Clear existing messages
         history.forEach(entry => {
-            displayMessage('You', entry.user);
-            displayMessage('AI', entry.ai);
+            displayMessage('You', entry.user, entry.id, entry.upvotes, entry.downvotes);
+            displayMessage('AI', entry.ai, entry.id, entry.upvotes, entry.downvotes);
         });
     } catch (error) {
         console.error('Failed to load chat history:', error);
@@ -59,12 +59,40 @@ async function sendMessage(message) {
     }
 }
 
-function displayMessage(sender, message) {
+function displayMessage(sender, message, id, upvotes, downvotes) {
     const chatMessages = document.getElementById('chat-messages');
-    const messageElement = document.createElement('p');
-    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message';
+    messageElement.innerHTML = `
+        <p><strong>${sender}:</strong> ${message}</p>
+        <div class="voting">
+            <button onclick="vote(${id}, 'up')" class="vote-btn up">👍 ${upvotes}</button>
+            <button onclick="vote(${id}, 'down')" class="vote-btn down">👎 ${downvotes}</button>
+        </div>
+    `;
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function vote(id, type) {
+    try {
+        const response = await fetch('/api/vote', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id, type }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Reload chat history to update vote counts
+        await loadChatHistory();
+    } catch (error) {
+        console.error('Error voting:', error);
+    }
 }
 
 function handleSendMessage() {

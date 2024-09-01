@@ -61,19 +61,46 @@ app.post('/api/chat', async (req, res) => {
         console.log('Received response from Anthropic API');
         const aiResponse = response.data.content[0].text;
         
-        // Save to chat history
+        // Save to chat history with initial vote counts
         const history = await loadChatHistory();
-        history.unshift({
+        const newEntry = {
+            id: Date.now(), // Use timestamp as a simple unique ID
             timestamp: new Date().toISOString(),
             user: message,
-            ai: aiResponse
-        });
+            ai: aiResponse,
+            upvotes: 0,
+            downvotes: 0
+        };
+        history.unshift(newEntry);
         await saveChatHistory(history);
 
         res.json({ response: aiResponse });
     } catch (error) {
         console.error('Error details:', error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'An error occurred while processing your request.' });
+    }
+});
+
+app.post('/api/vote', async (req, res) => {
+    try {
+        const { id, type } = req.body;
+        const history = await loadChatHistory();
+        const entry = history.find(e => e.id === id);
+        
+        if (entry) {
+            if (type === 'up') {
+                entry.upvotes++;
+            } else if (type === 'down') {
+                entry.downvotes++;
+            }
+            await saveChatHistory(history);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Entry not found' });
+        }
+    } catch (error) {
+        console.error('Error voting:', error);
+        res.status(500).json({ error: 'An error occurred while processing your vote.' });
     }
 });
 
