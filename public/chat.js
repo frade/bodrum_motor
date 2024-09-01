@@ -64,8 +64,8 @@ function displayMessage(entry) {
         <p><strong>You:</strong> ${entry.user}</p>
         <p><strong>AI:</strong> ${entry.ai}</p>
         <div class="voting">
-            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up ${userVotes[entry.id] === 'up' ? 'active' : ''}">👍 ${entry.upvotes || 0}</button>
-            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down ${userVotes[entry.id] === 'down' ? 'active' : ''}">👎 ${entry.downvotes || 0}</button>
+            <button onclick="vote(${entry.id}, 'up')" class="vote-btn up ${userVotes[entry.id] === 'up' ? 'active' : ''}">👍 ${entry.upvotes}</button>
+            <button onclick="vote(${entry.id}, 'down')" class="vote-btn down ${userVotes[entry.id] === 'down' ? 'active' : ''}">👎 ${entry.downvotes}</button>
         </div>
     `;
     chatMessages.appendChild(messageElement);
@@ -86,6 +86,8 @@ async function vote(id, type) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        const result = await response.json();
+
         if (userVotes[id] === type) {
             delete userVotes[id];
         } else {
@@ -93,8 +95,15 @@ async function vote(id, type) {
         }
         localStorage.setItem('userVotes', JSON.stringify(userVotes));
 
-        // Reload chat history to update vote counts
-        await loadChatHistory();
+        // Update the vote count in the UI
+        const voteButton = document.querySelector(`.message:has(button[onclick="vote(${id}, '${type}')"])`);
+        if (voteButton) {
+            const countElement = voteButton.querySelector(`.vote-btn.${type}`);
+            if (countElement) {
+                countElement.textContent = `${type === 'up' ? '👍' : '👎'} ${result[type + 'votes']}`;
+            }
+        }
+
     } catch (error) {
         console.error('Error voting:', error);
     }

@@ -85,21 +85,29 @@ app.post('/api/vote', async (req, res) => {
     try {
         const { id, type, previousVote } = req.body;
         const history = await loadChatHistory();
-        const entry = history.find(e => e.id === id);
+        const entry = history.find(e => e.id === parseInt(id));
         
         if (entry) {
-            if (previousVote) {
-                if (previousVote === 'up') entry.upvotes--;
-                if (previousVote === 'down') entry.downvotes--;
+            if (previousVote && previousVote !== type) {
+                if (previousVote === 'up') entry.upvotes = Math.max(0, entry.upvotes - 1);
+                if (previousVote === 'down') entry.downvotes = Math.max(0, entry.downvotes - 1);
             }
             
-            if (type !== previousVote) {
+            if (previousVote !== type) {
                 if (type === 'up') entry.upvotes++;
                 if (type === 'down') entry.downvotes++;
+            } else {
+                // If clicking the same button, remove the vote
+                if (type === 'up') entry.upvotes = Math.max(0, entry.upvotes - 1);
+                if (type === 'down') entry.downvotes = Math.max(0, entry.downvotes - 1);
             }
             
             await saveChatHistory(history);
-            res.json({ success: true });
+            res.json({ 
+                success: true, 
+                upvotes: entry.upvotes, 
+                downvotes: entry.downvotes 
+            });
         } else {
             res.status(404).json({ error: 'Entry not found' });
         }
