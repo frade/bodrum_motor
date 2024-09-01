@@ -137,10 +137,12 @@ button:disabled {
 
 .button-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: 1rem;
 }
 
+/* Remove these styles as they're no longer needed */
+/*
 #clear-chat-btn {
     background-color: #e74c3c;
 }
@@ -148,3 +150,4 @@ button:disabled {
 #clear-chat-btn:hover {
     background-color: #c0392b;
 }
+*/
