@@ -30,7 +30,7 @@ async function loadComment(page) {
     container.innerHTML = ''; // Clear previous content
     
     try {
-        const response = await fetch(`static/comment${page}.txt`);
+        const response = await fetch(`/static/comment${page}.txt`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -45,7 +45,7 @@ async function loadComment(page) {
         
         // Check if an image exists for this comment
         const img = document.createElement('img');
-        img.src = `static/comment${page}.jpg`;
+        img.src = `/static/comment${page}.jpg`;
         img.onerror = () => img.style.display = 'none';
         article.appendChild(img);
         
@@ -77,4 +77,28 @@ async function loadComment(page) {
     updatePagination();
 }
 
-// ... (rest of the code remains unchanged)
+function updatePagination() {
+    document.getElementById('page-info').textContent = `${currentPage} / ${totalPages}`;
+    document.getElementById('prev-btn').disabled = currentPage === 1;
+    document.getElementById('next-btn').disabled = currentPage === totalPages;
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadComment(currentPage);
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        loadComment(currentPage);
+    }
+}
+
+document.getElementById('prev-btn').addEventListener('click', prevPage);
+document.getElementById('next-btn').addEventListener('click', nextPage);
+
+// Load the first comment when the page loads
+window.addEventListener('load', () => loadComment(currentPage));
