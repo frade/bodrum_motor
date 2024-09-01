@@ -93,7 +93,7 @@ async function vote(id, type) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id, type, previousVote: userVotes[id] }),
+            body: JSON.stringify({ id: Number(id), type, previousVote: userVotes[id] }),
         });
 
         if (!response.ok) {
