@@ -22,9 +22,13 @@ async function loadChatHistory() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const history = await response.json();
+        console.log('Received chat history:', history); // Debug log
         const chatMessages = document.getElementById('chat-messages');
         chatMessages.innerHTML = ''; // Clear existing messages
         history.forEach(entry => {
+            if (!entry.id) {
+                console.error('Entry has no id:', entry);
+            }
             displayMessage(entry);
         });
     } catch (error) {
@@ -64,21 +68,27 @@ function displayMessage(entry) {
         <p><strong>You:</strong> ${entry.user}</p>
         <p><strong>AI:</strong> ${entry.ai}</p>
         <div class="voting">
-            <button class="vote-btn up" data-id="${entry.id}">👍 ${entry.upvotes}</button>
-            <button class="vote-btn down" data-id="${entry.id}">👎 ${entry.downvotes}</button>
+            <button class="vote-btn up" data-id="${entry.id || ''}">👍 ${entry.upvotes || 0}</button>
+            <button class="vote-btn down" data-id="${entry.id || ''}">👎 ${entry.downvotes || 0}</button>
         </div>
     `;
     
     const upButton = messageElement.querySelector('.vote-btn.up');
     const downButton = messageElement.querySelector('.vote-btn.down');
     
-    upButton.addEventListener('click', () => vote(entry.id, 'up'));
-    downButton.addEventListener('click', () => vote(entry.id, 'down'));
-    
-    if (userVotes[entry.id] === 'up') {
-        upButton.classList.add('active');
-    } else if (userVotes[entry.id] === 'down') {
-        downButton.classList.add('active');
+    if (entry.id) {
+        upButton.addEventListener('click', () => vote(entry.id, 'up'));
+        downButton.addEventListener('click', () => vote(entry.id, 'down'));
+        
+        if (userVotes[entry.id] === 'up') {
+            upButton.classList.add('active');
+        } else if (userVotes[entry.id] === 'down') {
+            downButton.classList.add('active');
+        }
+    } else {
+        console.error('Entry has no id:', entry);
+        upButton.disabled = true;
+        downButton.disabled = true;
     }
     
     chatMessages.appendChild(messageElement);
@@ -88,6 +98,10 @@ function displayMessage(entry) {
 async function vote(id, type) {
     try {
         console.log(`Voting ${type} for message ${id}`); // Debug log
+        if (id === null || id === undefined) {
+            console.error('Invalid id:', id);
+            return;
+        }
         const response = await fetch('/api/vote', {
             method: 'POST',
             headers: {
