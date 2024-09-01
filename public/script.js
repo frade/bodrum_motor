@@ -30,7 +30,7 @@ async function loadComment(page) {
     container.innerHTML = ''; // Clear previous content
     
     try {
-        const response = await fetch(`/static/comment${page}.txt`);
+        const response = await fetch(`static/comment${page}.txt`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -45,7 +45,7 @@ async function loadComment(page) {
         
         // Check if an image exists for this comment
         const img = document.createElement('img');
-        img.src = `/static/comment${page}.jpg`;
+        img.src = `static/comment${page}.jpg`;
         img.onerror = () => img.style.display = 'none';
         article.appendChild(img);
         
@@ -65,6 +65,9 @@ async function loadComment(page) {
         chatButton.onclick = () => location.href = 'chat.html';
         chatButtonContainer.appendChild(chatButton);
         container.appendChild(chatButtonContainer);
+
+        // Save the current page to local storage
+        localStorage.setItem('lastReadComment', page);
     } catch (error) {
         console.error(`Failed to load comment${page}.txt:`, error);
         container.innerHTML = `
@@ -100,5 +103,9 @@ function nextPage() {
 document.getElementById('prev-btn').addEventListener('click', prevPage);
 document.getElementById('next-btn').addEventListener('click', nextPage);
 
-// Load the first comment when the page loads
-window.addEventListener('load', () => loadComment(currentPage));
+// Load the last read comment or the first comment when the page loads
+window.addEventListener('load', () => {
+    const lastReadComment = localStorage.getItem('lastReadComment');
+    currentPage = lastReadComment ? parseInt(lastReadComment) : 1;
+    loadComment(currentPage);
+});
