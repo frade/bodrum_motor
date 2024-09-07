@@ -13,6 +13,17 @@ async function loadAllComments() {
             console.error(`Failed to load comment${i}.txt:`, error);
         }
     }
+    for (let i = 1000; i <= 1003; i++) {
+        try {
+            const response = await fetch(`static/comment${i}.txt`);
+            if (response.ok) {
+                const text = await response.text();
+                allComments += text + '\n\n';
+            }
+        } catch (error) {
+            console.error(`Failed to load comment${i}.txt:`, error);
+        }
+    }
 }
 
 async function loadChatHistory() {
